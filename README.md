@@ -19,4 +19,13 @@ Multiple users can connect to a central server, draw on a shared canvas, chat wi
 ---
 
 ## 🧩 Technologies Used
-- **Java (J**
+- **Java (JDK 17/21)**
+- **Java Swing** for GUI
+- **Java Sockets (TCP)** for networking
+- **Multithreading** for multiple clients
+- **BufferedImage & Graphics2D** for drawing
+
+---
+
+## 📁 Project Structure
+
