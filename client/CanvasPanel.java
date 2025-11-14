@@ -88,30 +88,34 @@ setPreferredSize(null); // allow resizing
     }
 
     // Public method to accept incoming DRAW commands and apply
-    public void applyDrawCommandLocal(String cmd, boolean storeInHistory) {
-        // cmd format: DRAW:username:x1,y1,x2,y2,r,g,b,stroke
-        try {
-            String[] parts = cmd.split(":", 3); 
+public void applyDrawCommandLocal(String cmd, boolean storeInHistory) {
+    try {
+        // Expected format: DRAW:username:x1,y1,x2,y2,r,g,b,stroke
+        String[] parts = cmd.split(":", 3);
+        if (parts.length < 3) return;
 
- // DRAW,username,coords,...
-            if (parts.length < 4) return;
-String payload = parts[2];
-            String[] fields = payload.split(",");
-            if (fields.length < 8) return;
-            int x1 = Integer.parseInt(fields[0]);
-            int y1 = Integer.parseInt(fields[1]);
-            int x2 = Integer.parseInt(fields[2]);
-            int y2 = Integer.parseInt(fields[3]);
-            int r = Integer.parseInt(fields[4]);
-            int g = Integer.parseInt(fields[5]);
-            int b = Integer.parseInt(fields[6]);
-            int st = Integer.parseInt(fields[7]);
-            drawSegment(x1, y1, x2, y2, new Color(r, g, b), st, false);
-            if (storeInHistory) history.add(cmd);
-        } catch (Exception ex) {
-            System.out.println("Bad DRAW cmd: " + cmd + " -> " + ex.getMessage());
-        }
+        String payload = parts[2]; // the coordinates part
+        String[] fields = payload.split(",");
+        if (fields.length < 8) return;
+
+        int x1 = Integer.parseInt(fields[0]);
+        int y1 = Integer.parseInt(fields[1]);
+        int x2 = Integer.parseInt(fields[2]);
+        int y2 = Integer.parseInt(fields[3]);
+        int r = Integer.parseInt(fields[4]);
+        int g = Integer.parseInt(fields[5]);
+        int b = Integer.parseInt(fields[6]);
+        int st = Integer.parseInt(fields[7]);
+
+        drawSegment(x1, y1, x2, y2, new Color(r, g, b), st, false);
+
+        if (storeInHistory) history.add(cmd);
+
+    } catch (Exception ex) {
+        System.out.println("Bad DRAW cmd: " + cmd + " -> " + ex.getMessage());
     }
+}
+
 
     private void drawSegment(int x1, int y1, int x2, int y2, Color color, int st, boolean localSend) {
         if (canvasG == null) return;
