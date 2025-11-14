@@ -25,8 +25,8 @@ public class ClientGUI {
         canvas = new CanvasPanel(600, 450);
         canvas.setDrawListener(cmd -> {
             // prefix with username when sending
-            client.send("DRAW:" + username + ":" + cmd.split(":", 2)[1]);
-// remove leading "DRAW:"
+client.send("DRAW:" + username + ":" + cmd.replace("DRAW:", ""));
+
         });
 
         JPanel toolbar = new JPanel();
