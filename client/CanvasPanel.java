@@ -20,7 +20,9 @@ public class CanvasPanel extends JPanel {
     private DrawListener listener;
 
     public CanvasPanel(int width, int height) {
-        setPreferredSize(new Dimension(width, height));
+        setMinimumSize(new Dimension(width, height));
+setPreferredSize(null); // allow resizing
+
         initCanvas(width, height);
 
         MouseAdapter ma = new MouseAdapter() {
@@ -89,9 +91,11 @@ public class CanvasPanel extends JPanel {
     public void applyDrawCommandLocal(String cmd, boolean storeInHistory) {
         // cmd format: DRAW:username:x1,y1,x2,y2,r,g,b,stroke
         try {
-            String[] parts = cmd.split(":", 4); // DRAW,username,coords,...
+            String[] parts = cmd.split(":", 3); 
+
+ // DRAW,username,coords,...
             if (parts.length < 4) return;
-            String payload = parts[3];
+String payload = parts[2];
             String[] fields = payload.split(",");
             if (fields.length < 8) return;
             int x1 = Integer.parseInt(fields[0]);
