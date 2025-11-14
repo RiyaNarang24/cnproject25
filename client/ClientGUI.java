@@ -23,11 +23,19 @@ public class ClientGUI {
 
         // Left: canvas and toolbar
         canvas = new CanvasPanel(600, 450);
-        canvas.setDrawListener(cmd -> {
-            // prefix with username when sending
-client.send("DRAW:" + username + ":" + cmd.replace("DRAW:", ""));
+canvas.setDrawListener(cmd -> {
+    if (cmd.startsWith("DRAW:")) {
+        // DRAW command example:
+        // DRAW:x1,y1,x2,y2,r,g,b,stroke
+        String payload = cmd.substring(5); // remove "DRAW:"
+        client.send("DRAW:" + username + ":" + payload);
 
-        });
+    } else if (cmd.startsWith("CLEAR:")) {
+        // CLEAR: message – simply broadcast it
+        client.send("CLEAR:" + username);
+    }
+});
+
 
         JPanel toolbar = new JPanel();
         JButton clearBtn = new JButton("Clear");
