@@ -19,36 +19,38 @@ public class CanvasPanel extends JPanel {
     }
     private DrawListener listener;
 
-    public CanvasPanel(int width, int height) {
-        setMinimumSize(new Dimension(width, height));
-setPreferredSize(null); // allow resizing
+   public CanvasPanel(int width, int height) {
+    setPreferredSize(new Dimension(width, height)); // initial size
+    setBackground(Color.WHITE);
+    setOpaque(true);
 
-        initCanvas(width, height);
+    initCanvas(width, height);
 
-        MouseAdapter ma = new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                prevX = e.getX();
-                prevY = e.getY();
-            }
+    MouseAdapter ma = new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            prevX = e.getX();
+            prevY = e.getY();
+        }
 
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                int x = e.getX();
-                int y = e.getY();
-                drawSegment(prevX, prevY, x, y, currentColor, stroke, true);
-                prevX = x;
-                prevY = y;
-            }
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            int x = e.getX();
+            int y = e.getY();
+            drawSegment(prevX, prevY, x, y, currentColor, stroke, true);
+            prevX = x;
+            prevY = y;
+        }
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                prevX = -1; prevY = -1;
-            }
-        };
-        addMouseListener(ma);
-        addMouseMotionListener(ma);
-    }
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            prevX = -1; prevY = -1;
+        }
+    };
+
+    addMouseListener(ma);
+    addMouseMotionListener(ma);
+}
 
     private void initCanvas(int w, int h) {
         canvasImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
