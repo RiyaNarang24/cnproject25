@@ -27,5 +27,5 @@ Multiple users can connect to a central server, draw on a shared canvas, chat wi
 
 ---
 
-## 📁 Project Structure
+
 
