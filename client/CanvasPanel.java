@@ -330,7 +330,6 @@ activeDrawers.put(username, new long[]{ x2, y2, System.currentTimeMillis() });
     // Painting
     // -----------------------------------------------------------
     @Override
-@Override
 protected void paintComponent(Graphics g) {
     super.paintComponent(g);
 
