@@ -226,6 +226,8 @@ public class CanvasPanel extends JPanel {
                     int g = Integer.parseInt(f[5]);
                     int b = Integer.parseInt(f[6]);
                     int st = Integer.parseInt(f[7]);
+activeDrawers.put(username, new long[]{ x2, y2, System.currentTimeMillis() });
+
 
                     drawFinalLine(x1, y1, x2, y2, new Color(r,g,b), st, false);
                     break;
@@ -245,6 +247,8 @@ public class CanvasPanel extends JPanel {
                     int st = Integer.parseInt(f[7]);
 
                     // Convert back to two corner points
+                    activeDrawers.put(username, new long[]{ x, y, System.currentTimeMillis() });
+
                     drawFinalRect(x, y, x + w, y + h, new Color(r,g,b), st, false);
                     break;
                 }
@@ -326,28 +330,60 @@ public class CanvasPanel extends JPanel {
     // Painting
     // -----------------------------------------------------------
     @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
+@Override
+protected void paintComponent(Graphics g) {
+    super.paintComponent(g);
 
-        g.drawImage(canvasImage, 0, 0, null);
+    // Draw saved canvas
+    g.drawImage(canvasImage, 0, 0, null);
 
-        Graphics2D g2 = (Graphics2D) g;
+    Graphics2D g2 = (Graphics2D) g;
 
-        // Live preview for line/rect
-        if (isDragging) {
-            g2.setColor(currentColor);
-            g2.setStroke(new BasicStroke(stroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+    // --- LIVE PREVIEW (line / rectangle) ---
+    if (isDragging) {
+        g2.setColor(currentColor);
+        g2.setStroke(new BasicStroke(stroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
-            if (currentMode == ToolMode.LINE) {
-                g2.drawLine(startX, startY, currentX, currentY);
-            }
-            else if (currentMode == ToolMode.RECTANGLE) {
-                int x = Math.min(startX, currentX);
-                int y = Math.min(startY, currentY);
-                int w = Math.abs(startX - currentX);
-                int h = Math.abs(startY - currentY);
-                g2.drawRect(x, y, w, h);
-            }
+        if (currentMode == ToolMode.LINE) {
+            g2.drawLine(startX, startY, currentX, currentY);
         }
+        else if (currentMode == ToolMode.RECTANGLE) {
+            int x = Math.min(startX, currentX);
+            int y = Math.min(startY, currentY);
+            int w = Math.abs(startX - currentX);
+            int h = Math.abs(startY - currentY);
+            g2.drawRect(x, y, w, h);
+        }
+    }
+
+    // --- USERNAME CURSOR LABELS ---
+    long now = System.currentTimeMillis();
+    Graphics2D g2User = (Graphics2D) g;
+    g2User.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                            RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+    g2User.setFont(new Font("Arial", Font.BOLD, 12));
+
+    Iterator<Map.Entry<String, long[]>> it = activeDrawers.entrySet().iterator();
+    while (it.hasNext()) {
+        Map.Entry<String, long[]> entry = it.next();
+        long[] info = entry.getValue();
+        long time = info[2];
+
+        if (now - time > 1500) {
+            it.remove(); // remove stale cursor
+        } else {
+            String user = entry.getKey();
+            int x = (int) info[0];
+            int y = (int) info[1];
+
+            g2User.setColor(Color.BLACK);
+            g2User.drawString(user, x + 6, y + 16);
+
+            g2User.setColor(Color.WHITE);
+            g2User.drawString(user, x + 5, y + 15);
+        }
+    }
+}
+
     }
 }
