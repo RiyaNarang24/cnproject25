@@ -222,53 +222,56 @@ public class CanvasPanel extends JPanel {
         canvasG = canvasImage.createGraphics();
         canvasG.setStroke(new BasicStroke(stroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));}
     @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (canvasImage != null) {
-            g.drawImage(canvasImage, 0, 0, getWidth(), getHeight(), null);
+@Override
+protected void paintComponent(Graphics g) {
+    super.paintComponent(g);
+
+    // Draw canvas at EXACT original size (NO SCALING)
+    if (canvasImage != null) {
+        g.drawImage(canvasImage, 0, 0, null);
+    }
+
+    Graphics2D g2d = (Graphics2D) g;
+
+    // Live preview (line/rectangle)
+    if (isDragging) {
+        g2d.setColor(currentColor);
+        g2d.setStroke(new BasicStroke(stroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
+        if (currentMode == ToolMode.LINE) {
+            g2d.drawLine(startX, startY, currentX, currentY);
+        } else if (currentMode == ToolMode.RECTANGLE) {
+            int x = Math.min(startX, currentX);
+            int y = Math.min(startY, currentY);
+            int width = Math.abs(startX - currentX);
+            int height = Math.abs(startY - currentY);
+            g2d.drawRect(x, y, width, height);
         }
+    }
 
-        // --- THIS IS THE CORRECTED BLOCK ---
-        // Cast g to Graphics2D to access setStroke
-        Graphics2D g2d = (Graphics2D) g;
+    // Username indicators
+    long now = System.currentTimeMillis();
+    Graphics2D g2Usernames = (Graphics2D) g;
+    g2Usernames.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+    g2Usernames.setFont(new Font("Arial", Font.BOLD, 12));
 
-        // Draw the live preview shape
-        if (isDragging) {
-            g2d.setColor(currentColor);
-            // Now this line will work correctly
-            g2d.setStroke(new BasicStroke(stroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+    Iterator<Map.Entry<String, long[]>> iterator = activeDrawers.entrySet().iterator();
+    while (iterator.hasNext()) {
+        Map.Entry<String, long[]> entry = iterator.next();
+        long[] info = entry.getValue();
+        long time = info[2];
 
-            if (currentMode == ToolMode.LINE) {
-                g2d.drawLine(startX, startY, currentX, currentY);
-            } else if (currentMode == ToolMode.RECTANGLE) {
-                int x = Math.min(startX, currentX);
-                int y = Math.min(startY, currentY);
-                int width = Math.abs(startX - currentX);
-                int height = Math.abs(startY - currentY);
-                g2d.drawRect(x, y, width, height);
-            }
+        if (now - time > 1500) {
+            iterator.remove();
+        } else {
+            String username = entry.getKey();
+            int x = (int) info[0];
+            int y = (int) info[1];
+            g2Usernames.setColor(Color.BLACK);
+            g2Usernames.drawString(username, x + 6, y + 16);
+            g2Usernames.setColor(Color.WHITE);
+            g2Usernames.drawString(username, x + 5, y + 15);
         }
-        long now = System.currentTimeMillis();
-        Graphics2D g2Usernames = (Graphics2D) g;
-        g2Usernames.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2Usernames.setFont(new Font("Arial", Font.BOLD, 12));
-        
-        Iterator<Map.Entry<String, long[]>> iterator = activeDrawers.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, long[]> entry = iterator.next();
-            long[] info = entry.getValue();
-            long time = info[2];
-
-            if (now - time > 1500) {
-                iterator.remove();
-            } else {
-                String username = entry.getKey();
-                int x = (int) info[0];
-                int y = (int) info[1];
-                g2Usernames.setColor(Color.BLACK);
-                g2Usernames.drawString(username, x + 6, y + 16);
-                g2Usernames.setColor(Color.WHITE);
-                g2Usernames.drawString(username, x + 5, y + 15);
-            } }}}
-        
-    
+    }
+}
